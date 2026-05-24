@@ -4,6 +4,26 @@ This guide provides step-by-step instructions to provision your production-grade
 
 ---
 
+## Prerequisites (Install in AWS CloudShell or your local terminal)
+
+Before beginning, ensure you have the following CLIs available:
+- **AWS CLI v2** — Pre-installed in CloudShell. Locally: [Install guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- **kubectl** — Pre-installed in CloudShell. Locally: [Install guide](https://kubernetes.io/docs/tasks/tools/)
+- **eksctl** — Required for OIDC & IRSA setup (Phase 5). Install in CloudShell:
+  ```bash
+  curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
+  tar -xzf eksctl_Linux_amd64.tar.gz -C /tmp
+  sudo mv /tmp/eksctl /usr/local/bin
+  eksctl version
+  ```
+- **helm** — Required for controller installation (Phase 5). Install in CloudShell:
+  ```bash
+  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  helm version
+  ```
+
+---
+
 ## Phase 1: Create IAM Roles in the IAM Console
 
 Before creating the cluster, you must provision two IAM roles: one for the EKS control plane (cluster) and one for the EC2 worker nodes.
@@ -84,7 +104,9 @@ Once your cluster status is **Active**, you can add worker nodes.
    - Click **Next**.
 6. **Specify networking**:
    - **Subnets**: Confirm **only** the private app subnets are selected (`nutritrack-prod-private-app-subnet-az1` and `nutritrack-prod-private-app-subnet-az2`).
-   - **Configure SSH Access**: Disable remote access (since nodes are private and managed by EKS, administration should be performed via `kubectl` or Systems Manager).
+   - **Configure SSH Access**: You have two options:
+     - **Option A (Recommended)**: Enable SSH access and select the `us-east` key pair. This lets you SSH into nodes via the Bastion host if needed for debugging.
+     - **Option B**: Disable remote access if you prefer to rely solely on `kubectl` and AWS Systems Manager (SSM) for node access.
    - Click **Next**.
 7. **Review and create**: Verify configurations and click **Create**.
    *(It takes about 5 minutes for the nodes to spin up and join the cluster).*
@@ -140,6 +162,7 @@ Because the controller needs to talk to the AWS API (to build ALBs), you need to
      --name=aws-load-balancer-controller \
      --role-name AmazonEKSLoadBalancerControllerRole \
      --attach-policy-arn=arn:aws:iam::<YOUR_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy \
+     --region us-east-1 \
      --approve
    ```
 
