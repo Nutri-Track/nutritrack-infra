@@ -27,7 +27,7 @@ VPC: 10.0.0.0/16
 | Route Tables | public, private-app (×2), private-db | 4 |
 | Security Groups | bastion, alb, eks-node, mysql | 4 |
 | Bastion Host | `nutritrack-prod-bastion` (t2.micro) | 1 |
-| Key Pair | `nutritrack-prod-bastion-key` | 1 |
+| Key Pair | `us-east` | 1 |
 
 ## Prerequisites
 
@@ -50,7 +50,7 @@ chmod +x provision-infra.sh teardown-infra.sh
 ./provision-infra.sh
 
 # 4. SSH into bastion
-ssh -i nutritrack-prod-bastion-key.pem ec2-user@<BASTION_PUBLIC_IP>
+ssh -i us-east.pem ec2-user@<BASTION_PUBLIC_IP>
 ```
 
 ## Teardown

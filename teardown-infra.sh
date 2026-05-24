@@ -11,15 +11,20 @@
 ###############################################################################
 set -euo pipefail
 
+# Wrapper function to strip carriage returns (\r) from AWS CLI stdout on Windows/mixed environments
+aws() {
+  command aws "$@" | tr -d '\r'
+}
+
 PROJECT="nutritrack"
 ENV="prod"
 PREFIX="${PROJECT}-${ENV}"
 AWS_REGION="us-east-1"
 BASTION_KEY_NAME="us-east"
 
-info()  { echo -e "\n\033[1;34m[INFO]\033[0m  $*"; }
-ok()    { echo -e "\033[1;32m[OK]\033[0m    $*"; }
-warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
+info()  { echo -e "\n\033[1;34m[INFO]\033[0m  $*" >&2; }
+ok()    { echo -e "\033[1;32m[OK]\033[0m    $*" >&2; }
+warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*" >&2; }
 
 ###############################################################################
 # Lookup VPC by Name tag
